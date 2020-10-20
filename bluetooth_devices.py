@@ -10,4 +10,3 @@ data = json.loads(output_json)  # loads the json into a dictionary
 
 for ele in data:
     print(ele["name"], " ==> Signal strength: ", ele["RSSI"])
-    # testing some pull request thing out
