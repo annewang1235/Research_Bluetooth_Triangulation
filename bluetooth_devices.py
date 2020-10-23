@@ -1,12 +1,19 @@
 import subprocess
 import json
+import time
 
-output = subprocess.check_output("blueutil --format json --paired", shell=True)
+if __name__ == '__main__':
+    while(True):
+        output = subprocess.check_output("blueutil --format json --paired", shell=True)
 
-output_json = output.decode("utf-8").replace("'", '"')  # decodes the byte into a json
+        output_json = output.decode("utf-8").replace("'", '"')
 
-print()
-data = json.loads(output_json)  # loads the json into a dictionary
+        data = json.loads(output_json)
+        # print(data)
+        # print(type(data))
 
-for ele in data:
-    print(ele["name"], " ==> Signal strength: ", ele["RSSI"])
+        for ele in data:
+            if("rawRSSI" in ele):
+                print(ele["name"] +" Signal Strength: "+str(ele["rawRSSI"]))
+        time.sleep(0.5)
+
