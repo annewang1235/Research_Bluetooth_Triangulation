@@ -15,5 +15,5 @@ if __name__ == '__main__':
         for ele in data:
             if("rawRSSI" in ele):
                 print(ele["name"] +" Signal Strength: "+str(ele["rawRSSI"]))
-        time.sleep(0.5)
+        time.sleep(0.1)
 
