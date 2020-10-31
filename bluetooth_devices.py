@@ -46,14 +46,14 @@ if __name__ == '__main__':
     raw_range = getRange(samples[1])
     
     print()
-    print("RSSI Stats")
+    print("RSSI Stats For", distance, "Feet Away")
     print("RANGE:", getRange(samples[0]))
     print("MEAN:", getMean(samples[0]))
     print("MEDIAN:", getMedian(samples[0]))
     print("MODE:", getMode(samples[0]))
     print()
     
-    print("rawRSSI Stats")
+    print("rawRSSI Stats For", distance, "Feet Away")
     print("RANGE:", getRange(samples[1]))
     print("MEAN:", getMean(samples[1]))
     print("MEDIAN:", getMedian(samples[1]))
