@@ -1,10 +1,18 @@
+#
+# AUTHOR: Anne Wang (UC Irvine)
+# DATE: UC Irvine Fall, November 2020
+# PURPOSE: Research for Bluetooth Trilateration: Data Collection
+# CONTACT: annew3@uci.edu
+#
+
+
 import subprocess
 import json
 from collections import defaultdict
 import time
 
 
-def distanceStrength():
+def distanceStrength(device_name):
 
     output = subprocess.check_output(
         "blueutil --format json-pretty --paired", shell=True
@@ -17,16 +25,15 @@ def distanceStrength():
 
     # there might be multiple connected devices -- we want to look for the bluetooth module
     for i in range(len(data)):
-        if "HC-05" in data[i]["name"]:
+        if ("HC_" + device_name) in data[i]["name"]:
             return (data[i], data[i]["address"])
 
 
-def getRSSIdata(distance, distanceToStrength):
+def getRSSIdata(device_name, distance, distanceToStrength):
 
-    ele, device_id = distanceStrength()
+    ele, device_id = distanceStrength(device_name)
 
     if ele["connected"]:
-        print(ele["name"], " ==> Signal strength: ", ele["RSSI"])
 
         distanceToStrength[distance].append(ele["RSSI"])
         distanceToStrength[distance].sort(reverse=True)
@@ -35,7 +42,7 @@ def getRSSIdata(distance, distanceToStrength):
         print(ele["name"], " is not connected.")
         print("trying to connect")
         subprocess.check_output("blueutil --connect " + device_id, shell=True)
-        print("check if connected?")
+        print("connected\n")
 
 
 def getRange(length, distance, distanceToStrength):
@@ -45,7 +52,6 @@ def getRange(length, distance, distanceToStrength):
 
 def getMedian(length, distance, distanceToStrength):
     midpoint = length // 2
-    print("this is midpoint", midpoint)
     return distanceToStrength[distance][midpoint]
 
 
@@ -57,20 +63,33 @@ def getMean(length, distance, distanceToStrength):
     return total // length
 
 
+def printData(distance, median, rangeOfRSSIVals, mean):
+    print("Data for Distance:", distance, "feet away from bluetooth.")
+    print("Median:", median, "\n")
+    print("Range: ", rangeOfRSSIVals)
+    print("Mean: ", mean)
+
+
 if __name__ == "__main__":
     distanceToStrength = defaultdict(list)
-    distance = input("Enter the distance: ")
-    for i in range(100):
+    device_name = input("Enter in which device (integer): ")
 
-        getRSSIdata(distance, distanceToStrength)
-        time.sleep(0.1)
+    print("\nData for Device HC_" + device_name)
+    for j in range(1, 21):
+        distance = str(j)
+        print("Start collecting data for distance:", distance, "feet away")
 
-    length = len(distanceToStrength[distance])
-    print(distanceToStrength)
-    rangeOfRSSIVals = getRange(length, distance, distanceToStrength)
-    median = getMedian(length, distance, distanceToStrength)
-    mean = getMean(length, distance, distanceToStrength)
+        for i in range(100):
 
-    print("Range: ", rangeOfRSSIVals)
-    print("Median:", median)
-    print("Mean: ", mean)
+            getRSSIdata(device_name, distance, distanceToStrength)
+            time.sleep(0.1)
+
+        length = len(distanceToStrength[distance])
+        rangeOfRSSIVals = getRange(length, distance, distanceToStrength)
+        median = getMedian(length, distance, distanceToStrength)
+        mean = getMean(length, distance, distanceToStrength)
+
+        printData(distance, median, rangeOfRSSIVals, mean)
+
+        print("TIME TO MOVE.\n")
+        time.sleep(3)
