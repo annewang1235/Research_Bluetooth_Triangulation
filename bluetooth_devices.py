@@ -1,95 +1,90 @@
-#
-# AUTHOR: Anne Wang (UC Irvine)
-# DATE: UC Irvine Fall, November 2020
-# PURPOSE: Research for Bluetooth Trilateration: Data Collection
-# CONTACT: annew3@uci.edu
-#
-
-
 import subprocess
 import json
-from collections import defaultdict
 import time
 
 
-def distanceStrength(device_number):
+def getDeviceID():
+    output = subprocess.check_output("blueutil --format json --paired", shell=True)
 
-    output = subprocess.check_output(
-        "blueutil --format json-pretty --paired", shell=True
-    )
-
-    # decodes the byte into a json
     output_json = output.decode("utf-8").replace("'", '"')
 
-    data = json.loads(output_json)  # loads the json into a dictionary
+    data = json.loads(output_json)
+    device_arr = []
+    index = 0
 
-    # there might be multiple connected devices -- we want to look for the bluetooth module
-    for i in range(len(data)):
-        if data[i]["name"] != None and device_number in data[i]["name"]:
-            return (data[i], data[i]["address"])
+    for ele in data:
+        print(index, ele["name"])
+        device_arr.append(ele["address"])
+        index += 1
 
-
-def getRSSIdata(device_number, distance, distanceToStrength):
-
-    ele, device_id = distanceStrength(device_number)
-
-    if ele["connected"]:
-
-        distanceToStrength[distance].append(ele["RSSI"])
-        distanceToStrength[distance].sort()
-
-    else:
-        print(ele["name"], " is not connected.")
-        print("trying to connect")
-        subprocess.check_output("blueutil --connect " + device_id, shell=True)
-        print("connected\n")
+    chosen = input("Device #: ")
+    return device_arr[int(chosen)]
 
 
-def getRange(length, distance, distanceToStrength):
+def getRSSISamples(num_samples, distance, device_id):
+    iter_num = 0
+    samples = []
+    raw_samples = []
+    subprocess.check_output("blueutil --connect " + device_id, shell=True)
+    while iter_num < num_samples:
+        output = subprocess.check_output(
+            "blueutil --format json --info " + device_id, shell=True
+        )
 
-    return (distanceToStrength[distance][0], distanceToStrength[distance][length - 1])
+        output_json = output.decode("utf-8").replace("'", '"')
+
+        data = json.loads(output_json)
+
+        if data["connected"]:
+            samples.append(data["RSSI"])
+            raw_samples.append(data["rawRSSI"])
+            print(data["name"], "Iteration Count:", iter_num + 1)
+        time.sleep(0.1)
+        iter_num += 1
+    return (sorted(samples), sorted(raw_samples))
 
 
-def getMedian(length, distance, distanceToStrength):
-    midpoint = length // 2
-    return distanceToStrength[distance][midpoint]
+def getMean(samples):
+    sum = 0
+    for sample in samples:
+        sum += sample
+    return sum / len(samples)
 
 
-def getMean(length, distance, distanceToStrength):
-    total = 0
-    for val in distanceToStrength[distance]:
-        total += val
-
-    return total // length
+def getMedian(samples):
+    if len(samples) % 2:
+        return samples[len(samples) / 2]
+    return (samples[(int(len(samples) / 2))] + samples[(int(len(samples) / 2)) - 1]) / 2
 
 
-def printData(distance, median, rangeOfRSSIVals, mean):
-    print("Data for Distance:", distance, "feet away from bluetooth.")
-    print("Median:", median, "\n")
-    print("Range: ", rangeOfRSSIVals)
-    print("Mean: ", mean)
+def getRange(samples):
+    return (samples[0], samples[len(samples) - 1])
+
+
+def getMode(samples):
+    return max(set(samples), key=samples.count)
+
+
+def printData(distance, rangeOfRSSI, mean, median, mode):
+    print()
+    print("RSSI Stats For", distance, "Feet Away")
+    print("RANGE:", rangeOfRSSI)
+    print("MEAN:", mean)
+    print("MEDIAN:", median)
+    print("MODE:", mode)
+    print()
 
 
 if __name__ == "__main__":
-    distanceToStrength = defaultdict(list)
-    device_name = input("Enter in which device (integer): ")
+    device_id = getDeviceID()
+    for i in range(1, 21):
+        distance = input("Distance from beacon: ")
+        samples = getRSSISamples(100, distance, device_id)
+        range = getRange(samples[0])
+        raw_range = getRange(samples[1])
 
-    print("\nData for Device #" + device_name)
-    for j in range(1, 21):
-        distance = str(j)
-        print("Start collecting data for distance:", distance, "feet away")
-
-        for i in range(100):
-
-            getRSSIdata(device_name, distance, distanceToStrength)
-            time.sleep(0.1)
-
-        length = len(distanceToStrength[distance])
-        rangeOfRSSIVals = getRange(length, distance, distanceToStrength)
-        median = getMedian(length, distance, distanceToStrength)
-        mean = getMean(length, distance, distanceToStrength)
-
-        printData(distance, median, rangeOfRSSIVals, mean)
-
-        print("TIME TO MOVE.\n")
-        time.sleep(3)
+        rangeOfRSSI = getRange(samples[0])
+        mean = getMean(samples[0])
+        median = getMedian(samples[0])
+        mode = getMode(samples[0])
+        printData(distance, rangeOfRSSI, mean, median, mode)
