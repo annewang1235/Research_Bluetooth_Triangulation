@@ -12,7 +12,7 @@ from collections import defaultdict
 import time
 
 
-def distanceStrength(device_name):
+def distanceStrength(device_number):
 
     output = subprocess.check_output(
         "blueutil --format json-pretty --paired", shell=True
@@ -25,18 +25,18 @@ def distanceStrength(device_name):
 
     # there might be multiple connected devices -- we want to look for the bluetooth module
     for i in range(len(data)):
-        if ("HC_" + device_name) in data[i]["name"]:
+        if data[i]["name"] != None and device_number in data[i]["name"]:
             return (data[i], data[i]["address"])
 
 
-def getRSSIdata(device_name, distance, distanceToStrength):
+def getRSSIdata(device_number, distance, distanceToStrength):
 
-    ele, device_id = distanceStrength(device_name)
+    ele, device_id = distanceStrength(device_number)
 
     if ele["connected"]:
 
         distanceToStrength[distance].append(ele["RSSI"])
-        distanceToStrength[distance].sort(reverse=True)
+        distanceToStrength[distance].sort()
 
     else:
         print(ele["name"], " is not connected.")
@@ -74,7 +74,7 @@ if __name__ == "__main__":
     distanceToStrength = defaultdict(list)
     device_name = input("Enter in which device (integer): ")
 
-    print("\nData for Device HC_" + device_name)
+    print("\nData for Device #" + device_name)
     for j in range(1, 21):
         distance = str(j)
         print("Start collecting data for distance:", distance, "feet away")
