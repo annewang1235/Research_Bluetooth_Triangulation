@@ -2,9 +2,6 @@ import subprocess
 import json
 import time
 
-import xlwt
-from xlwt import Workbook
-
 import csv
 
 
@@ -17,13 +14,15 @@ def getDeviceID():
     device_arr = []
     index = 0
 
+    device_name_arr = []
     for ele in data:
         print(index, ele["name"])
+        device_name_arr.append(ele["name"])
         device_arr.append(ele["address"])
         index += 1
 
     chosen = input("Device #: ")
-    return device_arr[int(chosen)]
+    return (device_arr[int(chosen)], device_name_arr[int(chosen)])
 
 
 def getRSSISamples(num_samples, distance, device_id):
@@ -90,9 +89,10 @@ def printData(distance, rangeOfRSSI, mean, median, mode):
 
 
 if __name__ == "__main__":
-    device_id = getDeviceID()
+    device_id, device_name = getDeviceID()
 
-    with open("bluetooth_data.csv", "w", newline="") as csvfile:
+    # each device has its own specific spreadsheet, name of spreadsheet to include name of device
+    with open("bluetooth_data_" + device_name + ".csv", "w", newline="") as csvfile:
         writer = csv.writer(csvfile)
         writer.writerow(["Distance (ft)", "RSSI", "Range of RSSI", "Mean"])
 
