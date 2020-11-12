@@ -48,15 +48,6 @@ def getRSSISamples(num_samples, distance, device_id):
     return (sorted(samples), sorted(raw_samples))
 
 
-def writeData(distance, median):
-    with open("bluetooth_data.csv", "w", newline="") as csvfile:
-        writer = csv.writer(
-            csvfile, delimiter=" ", quotechar="|", quoting=csv.QUOTE_MINIMAL
-        )
-
-        writer.writerow([distance, median])
-
-
 def getMean(samples):
     sum = 0
     for sample in samples:
