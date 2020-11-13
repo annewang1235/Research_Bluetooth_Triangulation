@@ -2,6 +2,8 @@ import subprocess
 import json
 import time
 
+import csv
+
 
 def getDeviceID():
     output = subprocess.check_output("blueutil --format json --paired", shell=True)
@@ -12,13 +14,15 @@ def getDeviceID():
     device_arr = []
     index = 0
 
+    device_name_arr = []
     for ele in data:
         print(index, ele["name"])
+        device_name_arr.append(ele["name"])
         device_arr.append(ele["address"])
         index += 1
 
     chosen = input("Device #: ")
-    return device_arr[int(chosen)]
+    return (device_arr[int(chosen)], device_name_arr[int(chosen)])
 
 
 def getRSSISamples(num_samples, distance, device_id):
@@ -76,15 +80,23 @@ def printData(distance, rangeOfRSSI, mean, median, mode):
 
 
 if __name__ == "__main__":
-    device_id = getDeviceID()
-    for i in range(1, 21):
-        distance = input("Distance from beacon: ")
-        samples = getRSSISamples(100, distance, device_id)
-        range = getRange(samples[0])
-        raw_range = getRange(samples[1])
+    device_id, device_name = getDeviceID()
 
-        rangeOfRSSI = getRange(samples[0])
-        mean = getMean(samples[0])
-        median = getMedian(samples[0])
-        mode = getMode(samples[0])
-        printData(distance, rangeOfRSSI, mean, median, mode)
+    # each device has its own specific spreadsheet, name of spreadsheet to include name of device
+    with open("bluetooth_data_" + device_name + ".csv", "w", newline="") as csvfile:
+        writer = csv.writer(csvfile)
+        writer.writerow(["Distance (ft)", "RSSI", "Range of RSSI", "Mean"])
+
+        for i in range(1, 21):
+            distance = input("Distance from beacon: ")
+            samples = getRSSISamples(100, distance, device_id)
+            regular_range = getRange(samples[0])
+            raw_range = getRange(samples[1])
+
+            rangeOfRSSI = getRange(samples[0])
+            mean = getMean(samples[0])
+            median = getMedian(samples[0])
+            mode = getMode(samples[0])
+            printData(distance, rangeOfRSSI, mean, median, mode)
+
+            writer.writerow([distance, median, rangeOfRSSI, mean])
