@@ -4,6 +4,8 @@ import time
 
 import csv
 
+import os
+
 
 def getDeviceID():
     output = subprocess.check_output("blueutil --format json --paired", shell=True)
@@ -43,6 +45,11 @@ def getRSSISamples(num_samples, distance, device_id):
             samples.append(data["RSSI"])
             raw_samples.append(data["rawRSSI"])
             print(data["name"], "Iteration Count:", iter_num + 1)
+        else:
+            print("disconnected. trying to reconnect.")
+            subprocess.check_output("blueutil --connect " + device_id, shell=True)
+            print("connected...continuing data collection")
+
         time.sleep(0.1)
         iter_num += 1
     return (sorted(samples), sorted(raw_samples))
@@ -57,7 +64,7 @@ def getMean(samples):
 
 def getMedian(samples):
     if len(samples) % 2:
-        return samples[len(samples) / 2]
+        return samples[len(samples) // 2]
     return (samples[(int(len(samples) / 2))] + samples[(int(len(samples) / 2)) - 1]) / 2
 
 
@@ -81,13 +88,21 @@ def printData(distance, rangeOfRSSI, mean, median, mode):
 
 if __name__ == "__main__":
     device_id, device_name = getDeviceID()
+    startVal = int(input("Start value to test: "))
+    endVal = int(input("End value to test: "))
+
+    fileName = "bluetooth_data_" + device_name + ".csv"
 
     # each device has its own specific spreadsheet, name of spreadsheet to include name of device
-    with open("bluetooth_data_" + device_name + ".csv", "w", newline="") as csvfile:
+    with open(fileName, "a", newline="") as csvfile:
         writer = csv.writer(csvfile)
-        writer.writerow(["Distance (ft)", "Raw RSSI", "Range of RSSI", "Mean"])
 
-        for i in range(1, 21):
+        if os.stat(fileName).st_size == 0:
+            writer.writerow(
+                ["Distance (ft)", "Raw RSSI Median", "Range of RSSI", "Mean"]
+            )
+
+        for i in range(startVal, endVal + 1):
             distance = input("Distance from beacon: ")
             samples = getRSSISamples(100, distance, device_id)
 
