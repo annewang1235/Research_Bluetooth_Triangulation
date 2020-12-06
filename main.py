@@ -15,9 +15,6 @@ if __name__ == "__main__":
 
     print(chosen_devices, chosen_device_names, device_positions, device_spreadsheets)
 
-    # pseudo code
-    # gets data from spreadsheets and calculates the m, b
-    # gets the data samplese from each bluetooth and calculates the distance
     bestFitLineDict = {}
     distanceDict = {}
     for i in range(len(chosen_device_names)):
