@@ -3,8 +3,7 @@ import Trilateration.bestFitCalcs as bestFitCalcs
 import bluetooth_devices
 
 if __name__ == "__main__":
-    allDeviceNames = ["HC_01", "HC_02", "HC_03", "HC_04", "HC_05", "HC_06"]
-    allDeviceAddresses = ["addy 1", "addy 2", "addy 3", "addy 4", "addy 5", "addy 6"]
+    allDeviceAddresses, allDeviceNames = inputs.printsAllDevices()
 
     chosen_devices, chosen_device_names = inputs.inputChosenDevices(
         allDeviceAddresses, allDeviceNames
