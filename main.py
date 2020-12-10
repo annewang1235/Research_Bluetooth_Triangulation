@@ -17,17 +17,25 @@ if __name__ == "__main__":
     bestFitLineDict = {}
     distanceDict = {}
     for i in range(len(chosen_device_names)):
+        # calculates the m, b values for specified device
         bestFitLineDict = bestFitCalcs.getBestFitLine(
             device_spreadsheets[i], chosen_device_names[i], bestFitLineDict
         )
 
+        # gets the RSSI data from specified device
         samples, raw_samples = bluetooth_devices.getRSSISamples(
             100, chosen_device_names[i]
         )
 
         # gets the RSSI mode and distance between receiver & i's device
         rssi_mode = bluetooth_devices.getMode(raw_samples)
-        distanceDict[chosen_device_names[i]] = rssi_mode
 
-    for (key, value) in distanceDict:
-        print("Predicted distance for " + key + ": " + value + " ft")
+        predicted_distance = bestFitCalcs.getDistance(
+            bestFitLineDict[chosen_device_names[i]][0],
+            rssi_mode,
+            bestFitLineDict[chosen_device_names[i]][1],
+        )
+        distanceDict[chosen_device_names[i]] = predicted_distance
+
+    for (key, value) in distanceDict.items():
+        print("Predicted distance for " + key + ": " + str(value) + " ft")
