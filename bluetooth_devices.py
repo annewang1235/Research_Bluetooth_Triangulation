@@ -27,7 +27,7 @@ def getDeviceID():
     return (device_arr[int(chosen)], device_name_arr[int(chosen)])
 
 
-def getRSSISamples(num_samples, distance, device_id):
+def getRSSISamples(num_samples, device_id):
     iter_num = 0
     samples = []
     raw_samples = []
@@ -104,7 +104,7 @@ if __name__ == "__main__":
 
         for i in range(startVal, endVal + 1):
             distance = input("Distance from beacon: ")
-            samples = getRSSISamples(100, distance, device_id)
+            samples = getRSSISamples(100, device_id)
 
             # raw RSSI ranges
             raw_range = getRange(samples[1])
