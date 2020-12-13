@@ -40,3 +40,19 @@ def plotData(x_vals, y_vals, data):
 
 def getDistance(m, rssi, b):
     return (rssi - b) / m
+
+
+def getAverageDistance(predictedDistances: list):
+    sum = 0
+    for element in predictedDistances:
+        sum += element
+
+    return round(sum / len(predictedDistances), 1)
+
+
+def getLowest(predictedDistances: list):
+    return predictedDistances[0]
+
+
+def getHighest(predictedDistances: list):
+    return predictedDistances[len(predictedDistances) - 1]
