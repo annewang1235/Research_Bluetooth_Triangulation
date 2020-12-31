@@ -13,10 +13,11 @@ def getBestFitLine(fileName, device_name, bestFitLineDict):
 
         plotData(x_vals, y_vals, data)
 
-        m, b = np.polyfit(x_vals, y_vals, 1)
+        # m, b = np.polyfit(x_vals, y_vals, 1)
+        a, b = np.polyfit(np.log(x_vals), y_vals, 1)
 
         # device_name is the key
-        bestFitLineDict[device_name] = (m, b)
+        bestFitLineDict[device_name] = (a, b)
 
         print(bestFitLineDict)
         return bestFitLineDict
@@ -30,16 +31,17 @@ def plotData(x_vals, y_vals, data):
     plt.ylabel("RSSI Values")
     plt.title("Distance Vs RSSI Values")
 
-    plt.plot(
-        np.unique(x_vals),
-        np.poly1d(np.polyfit(x_vals, y_vals, 1))(np.unique(x_vals)),
-    )
+    a, b = np.polyfit(np.log(x_vals), y_vals, 1)
+    print(a, b)
+
+    x = np.arange(0.1, 20, 0.1)
+    plt.plot(x, a * np.log(x) + b)
 
     plt.show()
 
 
-def getDistance(m, rssi, b):
-    return (rssi - b) / m
+def getDistance(a, rssi, b):
+    return np.exp((rssi - b) / a)
 
 
 def getAverageDistance(predictedDistances: list):
