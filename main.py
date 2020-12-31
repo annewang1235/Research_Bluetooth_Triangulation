@@ -24,19 +24,19 @@ if __name__ == "__main__":
         )
 
     # gets 10 predicted distances
-    for j in range(10):
+    for j in range(20):
         # gets the RSSI data from specified device
         samples, raw_samples = bluetooth_devices.getRSSISamples(
-            100, chosen_device_names[i]
+            50, chosen_device_names[i]
         )
 
         # gets the RSSI mode and distance between receiver & i's device
-        rssi_mode = bluetooth_devices.getMode(raw_samples)
-        print("rssi_mode is " + str(rssi_mode))
+        rssi_median = bluetooth_devices.getMedian(raw_samples)
+        print("rssi_mode is " + str(rssi_median))
 
         predicted_distance = bestFitCalcs.getDistance(
             bestFitLineDict[chosen_device_names[i]][0],
-            rssi_mode,
+            rssi_median,
             bestFitLineDict[chosen_device_names[i]][1],
         )
 
@@ -44,10 +44,10 @@ if __name__ == "__main__":
         distanceDict[chosen_device_names[i]].append(round(predicted_distance, 1))
 
     for (key, value) in distanceDict.items():
-        value.sort()
         print("Predicted distance for " + key + ": " + str(value) + " ft")
         print(
             "Average of this collection: " + str(bestFitCalcs.getAverageDistance(value))
         )
+        value.sort()
         print("Lowest: " + str(bestFitCalcs.getLowest(value)))
         print("Highest: " + str(bestFitCalcs.getHighest(value)))
