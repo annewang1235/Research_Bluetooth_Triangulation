@@ -24,8 +24,11 @@ def getDeviceID():
 def calibrate(device_id, distance):
   input(f"Move the beacon {distance} meter(s) away\nPress enter to continue...")
   print("Continuing...")
+  my_samples = getRSSISamples(50, device_id)
+  print(f"Range of RSSI: {getRange(my_samples)}")
+
   while(True):
-    return getMedian(getRSSISamples(50, device_id))
+    return getMedian(my_samples)
 
 def getRSSISamples(num_samples, device_id):
   iter_num = 0
@@ -53,6 +56,9 @@ def getMedian(samples):
   if len(samples) % 2:
     return samples[len(samples) // 2]
   return (samples[(int(len(samples) / 2))] + samples[(int(len(samples) / 2)) - 1]) / 2
+
+def getRange(samples):
+  return (samples[0], samples[len(samples) - 1])
 
 def rssi_to_dist(measured_power, envir_const, rssi):
   # initial guess based off median environmental const of samples
@@ -115,18 +121,24 @@ if __name__ == "__main__":
   device_id, device_name = getDeviceID()
   measured_power = [calibrate(device_id, x+1) for x in range(4)] # measured_power is the RSSI at various distances
   envir_const = calc_envir_const(measured_power) # an environmental constant from surroundings
-  print("Environmental Constant:", envir_const)
-  input("Move the Beacon\nPress enter to continue...")
-  print("Continuing...")
-  samples = getRSSISamples(50, device_id)
-  median = getMedian(samples)
-  appr_dist = rssi_to_dist(measured_power[0], envir_const, median)
+  print("[", end="")
+  for val in envir_const[:-1]:
+    print(f"{val:.2f}, ", end="")
   
-  print("Estimated Distance:", appr_dist)
+  print(f"{envir_const[-1]:.2f}]")
+  run = 1
+  while("q" != input("Move the Beacon\nPress enter to continue(or Q to exit)...").lower()):
+    print(f"Continuing With Test #{run}...")
+    samples = getRSSISamples(50, device_id)
+    print(f"Range of RSSI: {getRange(samples)}")
+    median = getMedian(samples)
+    appr_dist = rssi_to_dist(measured_power[0], envir_const, median)
+    print(f"Estimated Distance: {appr_dist:.2f}")
   
-  n = 10 if int(appr_dist)+2 < 10 else int(appr_dist)+2
-  grid_values = [[" " for x in range(n)] for y in range(n)]
-  grid_values[0][0] = "B"
-  grid_values[0][int(appr_dist)] = "H"
-  print_grid(n, grid_values)
+    n = 10 if int(appr_dist)+2 < 10 else int(appr_dist)+2
+    grid_values = [[" " for x in range(n)] for y in range(n)]
+    grid_values[0][0] = "B"
+    grid_values[0][int(appr_dist)] = "H"
+    print_grid(n, grid_values)
+    run += 1
 
