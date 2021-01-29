@@ -52,3 +52,28 @@ def inputSpreadsheets(chosen_device_names):
         spreadsheets.append(data)
 
     return spreadsheets
+
+
+def askForDistances():
+    degrees = input("At what degree of the bluetooth are you testing: ")
+    testing_values = input("How many distances do you want to test: ")
+
+    return (degrees, testing_values)
+
+
+def getAllInputs():
+    allDeviceAddresses, allDeviceNames = printsAllDevices()
+
+    chosen_devices, chosen_device_names = inputChosenDevices(
+        allDeviceAddresses, allDeviceNames
+    )
+
+    device_positions = inputPositions(chosen_device_names)
+    device_spreadsheets = inputSpreadsheets(chosen_device_names)
+
+    return (
+        chosen_devices,
+        chosen_device_names,
+        device_positions,
+        device_spreadsheets,
+    )
