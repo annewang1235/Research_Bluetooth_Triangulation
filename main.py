@@ -1,87 +1,68 @@
 import Trilateration.inputs as inputs
 import Trilateration.bestFitCalcs as bestFitCalcs
+import Trilateration.output as output
 import bluetooth_devices
 from collections import defaultdict
+
 
 import csv
 
 import os
 
+
+def collectDataSamples(bestFitLineDict, device_name):
+    for j in range(20):
+        # gets the RSSI data from specified device
+        samples, raw_samples = bluetooth_devices.getRSSISamples(3, device_name)
+
+        # gets the RSSI mode and distance between receiver & i's device
+        rssi_median = bluetooth_devices.getMedian(raw_samples)
+        print("rssi_mode is " + str(rssi_median))
+
+        predicted_distance = bestFitCalcs.getDistance(
+            bestFitLineDict[device_name][0],
+            rssi_median,
+            bestFitLineDict[device_name][1],
+        )
+
+        # value goes to 1 decimal place
+        distanceDict[chosen_device_names[i]].append(round(predicted_distance, 1))
+
+    return distanceDict
+
+
 if __name__ == "__main__":
-    allDeviceAddresses, allDeviceNames = inputs.printsAllDevices()
-
-    chosen_devices, chosen_device_names = inputs.inputChosenDevices(
-        allDeviceAddresses, allDeviceNames
-    )
-
-    device_positions = inputs.inputPositions(chosen_device_names)
-    device_spreadsheets = inputs.inputSpreadsheets(chosen_device_names)
+    (
+        chosen_devices,
+        chosen_device_names,
+        device_positions,
+        device_spreadsheets,
+    ) = inputs.getAllInputs()
 
     print(chosen_devices, chosen_device_names, device_positions, device_spreadsheets)
 
     bestFitLineDict = {}
     distanceDict = defaultdict(list)
     for i in range(len(chosen_device_names)):
-        # calculates the m, b values for specified device
+        # calculates the a, b values for specified device (logarithmic line of best fit)
         bestFitLineDict = bestFitCalcs.getBestFitLine(
             device_spreadsheets[i], chosen_device_names[i], bestFitLineDict
         )
 
-    # gets 20 predicted distances
-    fileName = "predictedValues_data"
+    fileName = "predictedValues_data.csv"
+    output.writeTitles()
     with open(fileName, "a", newline="") as csvfile:
         writer = csv.writer(csvfile)
 
-        if os.stat(fileName).st_size == 0:
-            writer.writerow(
-                [
-                    "Actual Distance (ft)",
-                    "Sample Values",
-                    "Average Predicted Value",
-                    "Range of Predicted Distances",
-                ]
-            )
-        testing_values = input("How many distances do you want to test: ")
-        for k in range(int(testing_values)):
+        degrees, testing_values = inputs.askForDistances()
 
-            actual_distance = input("What distance are you at right now: ")
-            for j in range(20):
-                # gets the RSSI data from specified device
-                samples, raw_samples = bluetooth_devices.getRSSISamples(
-                    50, chosen_device_names[i]
+        for counter in range(len(chosen_devices)):
+            for k in range(int(testing_values)):
+                actual_distance = input("What distance are you at right now: ")
+
+                distanceDict = collectDataSamples(
+                    bestFitLineDict, chosen_device_names[counter]
                 )
+                output.printAndWriteData(distanceDict, writer, actual_distance, degrees)
 
-                # gets the RSSI mode and distance between receiver & i's device
-                rssi_median = bluetooth_devices.getMedian(raw_samples)
-                print("rssi_mode is " + str(rssi_median))
-
-                predicted_distance = bestFitCalcs.getDistance(
-                    bestFitLineDict[chosen_device_names[i]][0],
-                    rssi_median,
-                    bestFitLineDict[chosen_device_names[i]][1],
-                )
-
-                # value goes to 1 decimal place
-                distanceDict[chosen_device_names[i]].append(
-                    round(predicted_distance, 1)
-                )
-
-            for (key, value) in distanceDict.items():
-                print("Predicted distance for " + key + ": " + str(value) + " ft")
-                print(
-                    "Average of this collection: "
-                    + str(bestFitCalcs.getAverageDistance(value))
-                )
-                value.sort()
-                print("Lowest: " + str(bestFitCalcs.getLowest(value)))
-                print("Highest: " + str(bestFitCalcs.getHighest(value)))
-
-                writer.writerow(
-                    [
-                        actual_distance,
-                        value,
-                        bestFitCalcs.getAverageDistance(value),
-                        (bestFitCalcs.getLowest(value), bestFitCalcs.getHighest(value)),
-                    ]
-                )
-            distanceDict.clear()
+                distanceDict.clear()
