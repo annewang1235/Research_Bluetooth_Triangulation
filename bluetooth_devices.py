@@ -4,6 +4,8 @@ import time
 
 import csv
 
+import os
+
 
 def getDeviceID():
     output = subprocess.check_output("blueutil --format json --paired", shell=True)
@@ -25,7 +27,7 @@ def getDeviceID():
     return (device_arr[int(chosen)], device_name_arr[int(chosen)])
 
 
-def getRSSISamples(num_samples, distance, device_id):
+def getRSSISamples(num_samples, device_id):
     iter_num = 0
     samples = []
     raw_samples = []
@@ -43,6 +45,11 @@ def getRSSISamples(num_samples, distance, device_id):
             samples.append(data["RSSI"])
             raw_samples.append(data["rawRSSI"])
             print(data["name"], "Iteration Count:", iter_num + 1)
+        else:
+            print("disconnected. trying to reconnect.")
+            subprocess.check_output("blueutil --connect " + device_id, shell=True)
+            print("connected...continuing data collection")
+
         time.sleep(0.1)
         iter_num += 1
     return (sorted(samples), sorted(raw_samples))
@@ -57,7 +64,7 @@ def getMean(samples):
 
 def getMedian(samples):
     if len(samples) % 2:
-        return samples[len(samples) / 2]
+        return samples[len(samples) // 2]
     return (samples[(int(len(samples) / 2))] + samples[(int(len(samples) / 2)) - 1]) / 2
 
 
@@ -71,7 +78,7 @@ def getMode(samples):
 
 def printData(distance, rangeOfRSSI, mean, median, mode):
     print()
-    print("RSSI Stats For", distance, "Feet Away")
+    print("rawRSSI Stats For", distance, "Feet Away")
     print("RANGE:", rangeOfRSSI)
     print("MEAN:", mean)
     print("MEDIAN:", median)
@@ -81,22 +88,31 @@ def printData(distance, rangeOfRSSI, mean, median, mode):
 
 if __name__ == "__main__":
     device_id, device_name = getDeviceID()
+    startVal = int(input("Start value to test: "))
+    endVal = int(input("End value to test: "))
+
+    fileName = "bluetooth_data_" + device_name + ".csv"
 
     # each device has its own specific spreadsheet, name of spreadsheet to include name of device
-    with open("bluetooth_data_" + device_name + ".csv", "w", newline="") as csvfile:
+    with open(fileName, "a", newline="") as csvfile:
         writer = csv.writer(csvfile)
-        writer.writerow(["Distance (ft)", "RSSI", "Range of RSSI", "Mean"])
 
-        for i in range(1, 21):
+        if os.stat(fileName).st_size == 0:
+            writer.writerow(
+                ["Distance (ft)", "Raw RSSI Median", "Range of RSSI", "Mean"]
+            )
+
+        for i in range(startVal, endVal + 1):
             distance = input("Distance from beacon: ")
-            samples = getRSSISamples(100, distance, device_id)
-            regular_range = getRange(samples[0])
+            samples = getRSSISamples(100, device_id)
+
+            # raw RSSI ranges
             raw_range = getRange(samples[1])
 
-            rangeOfRSSI = getRange(samples[0])
-            mean = getMean(samples[0])
-            median = getMedian(samples[0])
-            mode = getMode(samples[0])
-            printData(distance, rangeOfRSSI, mean, median, mode)
+            # raw RSSI mean, median, mode
+            raw_mean = getMean(samples[1])
+            raw_median = getMedian(samples[1])
+            raw_mode = getMode(samples[1])
+            printData(distance, raw_range, raw_mean, raw_median, raw_mode)
 
-            writer.writerow([distance, median, rangeOfRSSI, mean])
+            writer.writerow([distance, raw_median, raw_range, raw_mean])
