@@ -10,10 +10,10 @@ import csv
 import os
 
 
-def collectDataSamples(bestFitLineDict, device_name):
+def collectDataSamples(bestFitLineDict, device_name, device_id):
     for j in range(20):
         # gets the RSSI data from specified device
-        samples, raw_samples = bluetooth_devices.getRSSISamples(3, device_name)
+        samples, raw_samples = bluetooth_devices.getRSSISamples(50, device_id)
 
         # gets the RSSI mode and distance between receiver & i's device
         rssi_median = bluetooth_devices.getMedian(raw_samples)
@@ -26,8 +26,7 @@ def collectDataSamples(bestFitLineDict, device_name):
         )
 
         # value goes to 1 decimal place
-        distanceDict[chosen_device_names[i]].append(round(predicted_distance, 1))
-
+        distanceDict[device_name].append(round(predicted_distance, 1))
     return distanceDict
 
 
@@ -61,7 +60,7 @@ if __name__ == "__main__":
                 actual_distance = input("What distance are you at right now: ")
 
                 distanceDict = collectDataSamples(
-                    bestFitLineDict, chosen_device_names[counter]
+                    bestFitLineDict, chosen_device_names[counter], chosen_devices[counter]
                 )
                 output.printAndWriteData(distanceDict, writer, actual_distance, degrees)
 
