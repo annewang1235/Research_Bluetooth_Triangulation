@@ -49,6 +49,10 @@ def getRSSISamples(num_samples, device_id):
             print("disconnected. trying to reconnect.")
             subprocess.check_output("blueutil --connect " + device_id, shell=True)
             print("connected...continuing data collection")
+            # last sample is outlier if disconnected so we remove it
+            raw_samples.pop()
+            samples.pop()
+            iter_num -= 1
 
         time.sleep(0.1)
         iter_num += 1
@@ -88,8 +92,8 @@ def printData(distance, rangeOfRSSI, mean, median, mode):
 
 if __name__ == "__main__":
     device_id, device_name = getDeviceID()
-    startVal = int(input("Start value to test: "))
-    endVal = int(input("End value to test: "))
+    startVal = 1
+    endVal = 20
 
     fileName = "bluetooth_data_" + device_name + ".csv"
 
@@ -103,7 +107,7 @@ if __name__ == "__main__":
             )
 
         for i in range(startVal, endVal + 1):
-            distance = input("Distance from beacon: ")
+            distance = input(f'{i} feet away from Beacon\npress enter to continue...')
             samples = getRSSISamples(100, device_id)
 
             # raw RSSI ranges
@@ -113,6 +117,6 @@ if __name__ == "__main__":
             raw_mean = getMean(samples[1])
             raw_median = getMedian(samples[1])
             raw_mode = getMode(samples[1])
-            printData(distance, raw_range, raw_mean, raw_median, raw_mode)
+            printData(i, raw_range, raw_mean, raw_median, raw_mode)
 
-            writer.writerow([distance, raw_median, raw_range, raw_mean])
+            writer.writerow([i, raw_median, raw_range, raw_mean])

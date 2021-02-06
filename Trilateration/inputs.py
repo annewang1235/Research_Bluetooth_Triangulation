@@ -1,7 +1,7 @@
 # This file is so manage all the inputs for the program.
 import subprocess
 import json
-
+import glob
 
 def printsAllDevices():
     output = subprocess.check_output("blueutil --format json --paired", shell=True)
@@ -46,11 +46,16 @@ def inputPositions(chosen_device_names):
 
 
 def inputSpreadsheets(chosen_device_names):
+    choices = glob.glob("*/bluetooth_data*.csv")
     spreadsheets = []
-    for device in chosen_device_names:
-        data = input("spreadsheet for " + device + ": ")
-        spreadsheets.append(data)
+    index = 0
+    for ele in choices:
+        print(index, ele)
+        index += 1
 
+    for device in chosen_device_names:
+        data = input("spreadsheet # for " + device + ": ")
+        spreadsheets.append(choices[int(data)])
     return spreadsheets
 
 

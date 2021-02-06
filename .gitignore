@@ -1,1 +1,6 @@
+bluetooth_data_HC*
 bluetooth_data_BT*
+*.csv
+__pycache__/
+.vscode/
+.DS_Store

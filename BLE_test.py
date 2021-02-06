@@ -128,22 +128,42 @@ def print_grid(n, grid_values):
 
 if __name__ == "__main__":
   
-  device_id, device_name = getDeviceID()
-  measured_power = [calibrate(device_id, x+1) for x in range(5)] # measured_power is the RSSI at various distances
-  envir_const = calc_envir_const(measured_power) # an environmental constant from surroundings
-  print("[", end="")
-  for val in envir_const[:-1]:
-    print(f"{val:.2f}, ", end="")
+  device_id_1, device_name_1 = getDeviceID()
+  device_id_2, device_name_2 = getDeviceID()
   
-  print(f"{envir_const[-1]:.2f}]")
+  print("Calibration for First Beacon")
+  measured_power_1 = [calibrate(device_id_1, x+1) for x in range(5)] # measured_power is the RSSI at various distances
+  envir_const_1 = calc_envir_const(measured_power_1) # an environmental constant from surroundings
+  print(" env_const1 = [", end="")
+  for val in envir_const_1[:-1]:
+    print(f"{val:.2f}, ", end="")
+  print(f"{envir_const_1[-1]:.2f}]")
+
+  print("Calibration for Second Beacon")
+  measured_power_2 = [calibrate(device_id_2, x+1) for x in range(5)] # measured_power is the RSSI at various distances
+  envir_const_2 = calc_envir_const(measured_power_2) # an environmental constant from surroundings
+  print(" env_const2 = [", end="")
+  for val in envir_const_2[:-1]:
+    print(f"{val:.2f}, ", end="")
+  print(f"{envir_const_2[-1]:.2f}]")
+
   run = 1
   while("q" != input("Move the Beacon\nPress enter to continue(or Q to exit)...").lower()):
     print(f"Continuing With Test #{run}...")
-    samples = getRSSISamples(50, device_id)
-    print(f"Range of RSSI: {getRange(samples)}")
-    median = getMedian(samples)
-    appr_dist = rssi_to_dist(measured_power[0], envir_const, median)
-    print(f"Estimated Distance: {appr_dist:.2f}")
+    samples_1 = getRSSISamples(50, device_id_1)
+    samples_2 = getRSSISamples(50, device_id_2)
+    
+    print(f"Range of RSSI 1: {getRange(samples_1)}")
+    median_1 = getMedian(samples_1)
+
+    print(f"Range of RSSI 2: {getRange(samples_2)}")
+    median_2 = getMedian(samples_2)
+    
+    appr_dist_1 = rssi_to_dist(measured_power_1[0], envir_const_1, median_1)
+    print(f"Estimated Distance 1: {appr_dist_1:.2f}")
+    
+    appr_dist_2 = rssi_to_dist(measured_power_2[0], envir_const_2, median_2)
+    print(f"Estimated Distance 2: {appr_dist_2:.2f}")
   
     # n = 10 if int(appr_dist)+2 < 10 else int(appr_dist)+2
     # grid_values = [[" " for x in range(n)] for y in range(n)]

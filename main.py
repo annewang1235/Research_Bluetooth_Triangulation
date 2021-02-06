@@ -39,7 +39,8 @@ if __name__ == "__main__":
         device_spreadsheets,
     ) = inputs.getAllInputs()
 
-    print(chosen_devices, chosen_device_names, device_positions, device_spreadsheets)
+    print(chosen_devices, chosen_device_names,
+          device_positions, device_spreadsheets)
 
     bestFitLineDict = {}
     distanceDict = defaultdict(list)
@@ -61,10 +62,9 @@ if __name__ == "__main__":
                 actual_distance = input("What distance are you at right now: ")
 
                 distanceDict = collectDataSamples(
-                    bestFitLineDict,
-                    chosen_device_names[counter],
-                    chosen_devices[counter],
+                    bestFitLineDict, chosen_device_names[counter], chosen_devices[counter]
                 )
-                output.printAndWriteData(distanceDict, writer, actual_distance, degrees)
+                output.printAndWriteData(
+                    distanceDict, writer, actual_distance, degrees)
 
                 distanceDict.clear()
