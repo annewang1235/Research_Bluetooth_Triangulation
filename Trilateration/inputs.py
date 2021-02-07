@@ -3,8 +3,10 @@ import subprocess
 import json
 import glob
 
+
 def printsAllDevices():
-    output = subprocess.check_output("blueutil --format json --paired", shell=True)
+    output = subprocess.check_output(
+        "blueutil --format json --paired", shell=True)
 
     output_json = output.decode("utf-8").replace("'", '"')
 
@@ -40,7 +42,7 @@ def inputPositions(chosen_device_names):
     positions = []
     for device in chosen_device_names:
         x, y = input("Position for " + device + ": ").split()
-        positions.append((x, y))
+        positions.append((int(x), int(y)))
 
     return positions
 

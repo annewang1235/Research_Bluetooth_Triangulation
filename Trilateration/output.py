@@ -5,7 +5,8 @@ import csv
 def printData(distanceDict, key, value):
 
     print("Predicted distance for " + key + ": " + str(value) + " ft")
-    print("Average of this collection: " + str(bestFitCalcs.getAverageDistance(value)))
+    print("Average of this collection: " +
+          str(bestFitCalcs.getAverageDistance(value)))
     value.sort()
     print("Lowest: " + str(bestFitCalcs.getLowest(value)))
     print("Highest: " + str(bestFitCalcs.getHighest(value)))

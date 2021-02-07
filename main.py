@@ -2,7 +2,9 @@ import Trilateration.inputs as inputs
 import Trilateration.bestFitCalcs as bestFitCalcs
 import Trilateration.output as output
 import bluetooth_devices
+import draw_circle
 from collections import defaultdict
+import matplotlib.pyplot as plt
 
 
 import csv
@@ -31,6 +33,35 @@ def collectDataSamples(bestFitLineDict, device_name, device_id):
     return distanceDict
 
 
+def getRadiusOfBeacons(chosen_devices, chosen_device_names, bestFitLineDict):
+    fileName = "predictedValues_data.csv"
+    output.writeTitles()
+    radiusDict = {}
+    with open(fileName, "a", newline="") as csvfile:
+        writer = csv.writer(csvfile)
+
+        degrees, testing_values = inputs.askForDistances()
+
+        for counter in range(len(chosen_devices)):
+            print("Now testing: " + chosen_device_names[counter])
+            for k in range(int(testing_values)):
+                actual_distance = input(
+                    "What distance are you at right now (for " + chosen_device_names[counter] + "): ")
+
+                distanceDict = collectDataSamples(
+                    bestFitLineDict, chosen_device_names[counter], chosen_devices[counter]
+                )
+                output.printAndWriteData(
+                    distanceDict, writer, actual_distance, degrees)
+
+            averageRadius = bestFitCalcs.getAverageDistance(
+                distanceDict[chosen_device_names[counter]])
+            distanceDict.clear()
+            radiusDict[chosen_device_names[counter]] = averageRadius
+
+    return radiusDict
+
+
 if __name__ == "__main__":
     (
         chosen_devices,
@@ -50,21 +81,11 @@ if __name__ == "__main__":
             device_spreadsheets[i], chosen_device_names[i], bestFitLineDict
         )
 
-    fileName = "predictedValues_data.csv"
-    output.writeTitles()
-    with open(fileName, "a", newline="") as csvfile:
-        writer = csv.writer(csvfile)
+    radiusDict = getRadiusOfBeacons(
+        chosen_devices, chosen_device_names, bestFitLineDict)
+    print(radiusDict)
+    print(device_positions)
+    print(chosen_device_names)
 
-        degrees, testing_values = inputs.askForDistances()
-
-        for counter in range(len(chosen_devices)):
-            for k in range(int(testing_values)):
-                actual_distance = input("What distance are you at right now: ")
-
-                distanceDict = collectDataSamples(
-                    bestFitLineDict, chosen_device_names[counter], chosen_devices[counter]
-                )
-                output.printAndWriteData(
-                    distanceDict, writer, actual_distance, degrees)
-
-                distanceDict.clear()
+    draw_circle.visualize_circles(
+        radiusDict, device_positions, chosen_device_names)
