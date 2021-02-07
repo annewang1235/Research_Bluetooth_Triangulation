@@ -6,7 +6,8 @@ import pylab
 def getBestFitLine(fileName, device_name, bestFitLineDict):
     with open(fileName) as f:
         next(f)
-        data = [[line.split(",")[0], line.split(",")[1]] for line in f.readlines()]
+        data = [[line.split(",")[0], line.split(",")[1]]
+                for line in f.readlines()]
 
         x_vals = np.array([float(x) for x, y in data])
         y_vals = np.array([float(y) for x, y in data])
@@ -58,3 +59,7 @@ def getLowest(predictedDistances: list):
 
 def getHighest(predictedDistances: list):
     return predictedDistances[len(predictedDistances) - 1]
+
+
+def calculateRadius():
+    pass
