@@ -24,16 +24,4 @@ def visualize_circles(radiusDict, device_positions, chosen_device_names):
 
         counter += 1
 
-        # draw_circle = plt.Circle((0, 0), 0, alpha=0.2, color='red')
-        # draw_circle2 = plt.Circle((0, 5), 6, alpha=0.2, color='blue')
-        # draw_circle3 = plt.Circle((5, 0), 5, alpha=0.2, color='green')
-
-        # axes.add_artist(draw_circle)
-        # axes.add_artist(draw_circle2)
-        # axes.add_artist(draw_circle3)
-
     plt.show()
-
-
-# visualize_circles({"HC_02": 0, "HC_04": 7}, [
-#                   (0, 0), (3, 3)], ["HC_02", "HC_04"])
