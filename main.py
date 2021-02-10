@@ -89,3 +89,6 @@ if __name__ == "__main__":
 
     draw_circle.visualize_circles(
         radiusDict, device_positions, chosen_device_names)
+
+    draw_circle.get_intersection(
+        radiusDict, device_positions, chosen_device_names)
