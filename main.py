@@ -14,21 +14,22 @@ import os
 
 def collectDataSamples(bestFitLineDict, device_name, device_id):
     for j in range(20):
-        # gets the RSSI data from specified device
-        samples, raw_samples = bluetooth_devices.getRSSISamples(50, device_id)
+      # gets the RSSI data from specified device
+      samples, raw_samples = bluetooth_devices.getRSSISamples(50, device_id)
 
-        # gets the RSSI mode and distance between receiver & i's device
-        rssi_median = bluetooth_devices.getMedian(raw_samples)
-        print("rssi_mode is " + str(rssi_median))
+      # gets the RSSI mode and distance between receiver & i's device
+      rssi_median = {key:bluetooth_devices.getMedian(raw_sample) for (key, raw_sample) in raw_samples.items()}
+      print("rssi_mode is " + str(rssi_median))
 
+      for index in range(len(device_name)):
         predicted_distance = bestFitCalcs.getDistance(
-            bestFitLineDict[device_name][0],
-            rssi_median,
-            bestFitLineDict[device_name][1],
+            bestFitLineDict[device_name[index]][0],
+            rssi_median[device_id[index]],
+            bestFitLineDict[device_name[index]][1],
         )
 
         # value goes to 1 decimal place
-        distanceDict[device_name].append(round(predicted_distance, 1))
+        distanceDict[device_name[index]].append(round(predicted_distance, 1))
 
     return distanceDict
 
@@ -40,24 +41,23 @@ def getRadiusOfBeacons(chosen_devices, chosen_device_names, bestFitLineDict):
     with open(fileName, "a", newline="") as csvfile:
         writer = csv.writer(csvfile)
 
-        degrees, testing_values = inputs.askForDistances()
+        #degrees, testing_values = inputs.askForDistances()
 
-        for counter in range(len(chosen_devices)):
-            print("Now testing: " + chosen_device_names[counter])
-            for k in range(int(testing_values)):
-                actual_distance = input(
-                    "What distance are you at right now (for " + chosen_device_names[counter] + "): ")
+        #for counter in range(len(chosen_devices)):
+        #    print("Now testing: " + chosen_device_names[counter])
+        #for k in range(1):
+            #actual_distance = input(
+            #    "What distance are you at right now (for " + chosen_device_names[counter] + "): ")
 
-                distanceDict = collectDataSamples(
-                    bestFitLineDict, chosen_device_names[counter], chosen_devices[counter]
-                )
-                output.printAndWriteData(
-                    distanceDict, writer, actual_distance, degrees)
+        distanceDict = collectDataSamples(
+            bestFitLineDict, chosen_device_names, chosen_devices
+        )
+        output.printAndWriteData(
+            distanceDict, writer, '0', '0')
 
-            averageRadius = bestFitCalcs.getAverageDistance(
-                distanceDict[chosen_device_names[counter]])
-            distanceDict.clear()
-            radiusDict[chosen_device_names[counter]] = averageRadius
+        for device in chosen_device_names:
+          radiusDict[device] = bestFitCalcs.getAverageDistance(
+            distanceDict[device])
 
     return radiusDict
 

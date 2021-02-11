@@ -56,7 +56,7 @@ def inputSpreadsheets(chosen_device_names):
         index += 1
 
     for device in chosen_device_names:
-        data = input("spreadsheet # for " + device + ": ")
+        data = input("Spreadsheet # for " + device + ": ")
         spreadsheets.append(choices[int(data)])
     return spreadsheets
 

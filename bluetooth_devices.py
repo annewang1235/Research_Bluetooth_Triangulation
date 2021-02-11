@@ -29,34 +29,48 @@ def getDeviceID():
 
 def getRSSISamples(num_samples, device_id):
     iter_num = 0
-    samples = []
-    raw_samples = []
-    subprocess.check_output("blueutil --connect " + device_id, shell=True)
+    samples_dict = {}
+    raw_samples_dict = {}
+    for id in device_id:
+      samples_dict[id] = []
+      raw_samples_dict[id] = []
+      subprocess.check_output("blueutil --connect " + id, shell=True)
+    
     while iter_num < num_samples:
         output = subprocess.check_output(
-            "blueutil --format json --info " + device_id, shell=True
+            "blueutil --format json --paired", shell=True
         )
 
         output_json = output.decode("utf-8").replace("'", '"')
 
         data = json.loads(output_json)
 
-        if data["connected"]:
-            samples.append(data["RSSI"])
-            raw_samples.append(data["rawRSSI"])
-            print(data["name"], "Iteration Count:", iter_num + 1)
-        else:
-            print("disconnected. trying to reconnect.")
-            subprocess.check_output("blueutil --connect " + device_id, shell=True)
-            print("connected...continuing data collection")
-            # last sample is outlier if disconnected so we remove it
-            raw_samples.pop()
-            samples.pop()
-            iter_num -= 1
+        for device in data:
+          if device["address"] in device_id:
+            if device["connected"]:
+                samples_dict[device["address"]].append(device["RSSI"])
+                raw_samples_dict[device["address"]].append(device["rawRSSI"])
+                print(device["name"], "Iteration Count:", iter_num + 1)
+            else:
+                print("disconnected. trying to reconnect.")
+                for id in device_id:
+                  subprocess.check_output("blueutil --connect " + id, shell=True)
+                
+                print("connected...continuing data collection")
+                # last sample is outlier if disconnected so we remove it
+                # raw_samples[device["address"]].pop()
+                # samples[device["address"]].pop()
+                iter_num -= 1
 
         time.sleep(0.1)
         iter_num += 1
-    return (sorted(samples), sorted(raw_samples))
+    
+    # sorts each of our lists of data 
+    for key in device_id:
+      samples_dict[key].sort()
+      raw_samples_dict[key].sort()
+
+    return (samples_dict, raw_samples_dict)
 
 
 def getMean(samples):
