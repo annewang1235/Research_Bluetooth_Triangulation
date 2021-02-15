@@ -61,5 +61,5 @@ def getHighest(predictedDistances: list):
     return predictedDistances[len(predictedDistances) - 1]
 
 
-def calculateRadius():
-    pass
+def midpoint(minBound, maxBound):
+    return (minBound + maxBound)/2.0

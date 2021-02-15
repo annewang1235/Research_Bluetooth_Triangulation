@@ -6,6 +6,7 @@ import draw_circle
 from collections import defaultdict
 import matplotlib.pyplot as plt
 
+import math
 
 import csv
 
@@ -61,6 +62,28 @@ def getRadiusOfBeacons(chosen_devices, chosen_device_names, bestFitLineDict):
 
     return radiusDict
 
+def withinBounds(bounds, actualCoord):
+    actual_x = actualCoord[0]
+    actual_y = actualCoord[1]
+
+    withinX = actual_x > bounds[0] and actual_x < bounds[2]
+    withinY = actual_y > bounds[1] and actual_y < bounds[3]
+
+    printIsBetween(actual_x, bounds[0], bounds[2], withinX, "X")
+    printIsBetween(actual_y, bounds[1], bounds[3], withinY, "Y")
+
+
+
+def printIsBetween(actualCoord, minBound, maxBound, within, dir):
+    if (within):
+        print(str(actualCoord) + " is between " + str(minBound) + " and " + str(maxBound) + "; " + dir + "-dir")
+    else:
+        print(str(actualCoord) + " is not between " + str(minBound) + " and " + str(maxBound) + "; " + dir + "-dir")
+
+def marginOfError(predictedCoords, actualCoords):
+    dist_squared = (predictedCoords[0] - actualCoords[0])**2 + (predictedCoords[1] - actualCoords[1])**2
+    dist = math.sqrt(dist_squared)
+    return math.trunc(dist)
 
 if __name__ == "__main__":
     (
@@ -68,6 +91,7 @@ if __name__ == "__main__":
         chosen_device_names,
         device_positions,
         device_spreadsheets,
+        actualCoords
     ) = inputs.getAllInputs()
 
     print(chosen_devices, chosen_device_names,
@@ -87,8 +111,16 @@ if __name__ == "__main__":
     print(device_positions)
     print(chosen_device_names)
 
-    draw_circle.visualize_circles(
+    bounds = draw_circle.get_intersection(
         radiusDict, device_positions, chosen_device_names)
 
-    draw_circle.get_intersection(
-        radiusDict, device_positions, chosen_device_names)
+    withinBounds(bounds, actualCoords)
+
+    midpointX = bestFitCalcs.midpoint(bounds[0], bounds[2])
+    midpointY = bestFitCalcs.midpoint(bounds[1], bounds[3])
+
+    marginOfError = marginOfError((midpointX, midpointY), actualCoords)
+    print(str(marginOfError) + " ft off from center of intersection.")
+
+    draw_circle.visualize_circles(
+        radiusDict, device_positions, chosen_device_names, actualCoords)

@@ -42,7 +42,7 @@ def inputPositions(chosen_device_names):
     positions = []
     for device in chosen_device_names:
         x, y = input("Position for " + device + ": ").split()
-        positions.append((int(x), int(y)))
+        positions.append((float(x), float(y)))
 
     return positions
 
@@ -60,12 +60,19 @@ def inputSpreadsheets(chosen_device_names):
         spreadsheets.append(choices[int(data)])
     return spreadsheets
 
+def inputActualCoords():
+
+    x, y = input("Actual Position of receiver?: ").split()
+    return (float(x), float(y))
+
+   
 
 def askForDistances():
     degrees = input("At what degree of the bluetooth are you testing: ")
     testing_values = input("How many distances do you want to test: ")
 
     return (degrees, testing_values)
+
 
 
 def getAllInputs():
@@ -77,10 +84,12 @@ def getAllInputs():
 
     device_positions = inputPositions(chosen_device_names)
     device_spreadsheets = inputSpreadsheets(chosen_device_names)
+    actualCoords = inputActualCoords()
 
     return (
         chosen_devices,
         chosen_device_names,
         device_positions,
         device_spreadsheets,
+        actualCoords
     )
