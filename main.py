@@ -6,6 +6,7 @@ import draw_circle
 from collections import defaultdict
 import matplotlib.pyplot as plt
 
+import math
 
 import csv
 
@@ -15,12 +16,13 @@ import os
 def collectDataSamples(bestFitLineDict, device_name, device_id):
     for j in range(20):
       # gets the RSSI data from specified device
-      samples, raw_samples = bluetooth_devices.getRSSISamples(50, device_id)
+      samples, raw_samples = bluetooth_devices.getRSSISamples(25, device_id)
 
       # gets the RSSI mode and distance between receiver & i's device
       rssi_median = {key:bluetooth_devices.getMedian(raw_sample) for (key, raw_sample) in raw_samples.items()}
       print("rssi_mode is " + str(rssi_median))
 
+      # gets the predicted distance between receiver and i's device
       for index in range(len(device_name)):
         predicted_distance = bestFitCalcs.getDistance(
             bestFitLineDict[device_name[index]][0],
@@ -61,6 +63,28 @@ def getRadiusOfBeacons(chosen_devices, chosen_device_names, bestFitLineDict):
 
     return radiusDict
 
+def withinBounds(bounds, actualCoord):
+    if (bounds == ()):
+        print("No intersection.")
+        return
+
+    actual_x = actualCoord[0]
+    actual_y = actualCoord[1]
+
+    withinX = actual_x > bounds[0] and actual_x < bounds[2]
+    withinY = actual_y > bounds[1] and actual_y < bounds[3]
+
+    _printIsBetween(actual_x, bounds[0], bounds[2], withinX, "X")
+    _printIsBetween(actual_y, bounds[1], bounds[3], withinY, "Y")
+
+
+
+def _printIsBetween(actualCoord, minBound, maxBound, within, dir):
+    if (within):
+        print(str(actualCoord) + " is between " + str(minBound) + " and " + str(maxBound) + "; " + dir + "-dir")
+    else:
+        print(str(actualCoord) + " is not between " + str(minBound) + " and " + str(maxBound) + "; " + dir + "-dir")
+
 
 if __name__ == "__main__":
     (
@@ -68,6 +92,7 @@ if __name__ == "__main__":
         chosen_device_names,
         device_positions,
         device_spreadsheets,
+        actualCoords
     ) = inputs.getAllInputs()
 
     print(chosen_devices, chosen_device_names,
@@ -87,8 +112,10 @@ if __name__ == "__main__":
     print(device_positions)
     print(chosen_device_names)
 
-    draw_circle.visualize_circles(
+    intersection = draw_circle.get_intersection(
         radiusDict, device_positions, chosen_device_names)
 
-    draw_circle.get_intersection(
-        radiusDict, device_positions, chosen_device_names)
+    bestFitCalcs.getIntersectionCenter(intersection, actualCoords)
+
+    draw_circle.visualize_circles(
+        radiusDict, device_positions, chosen_device_names, actualCoords, intersection)

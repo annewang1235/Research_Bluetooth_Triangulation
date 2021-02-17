@@ -5,9 +5,14 @@ from shapely.geometry import Point
 from shapely.ops import cascaded_union
 from itertools import combinations
 
-
-def visualize_circles(radiusDict, device_positions, chosen_device_names):
+def visualize_circles(radiusDict, device_positions, chosen_device_names, actualCoords, intersection):
     figure, axes = plt.subplots()
+
+    axes.add_artist(plt.Circle(actualCoords, 0.5, color='black'))
+   
+    if (intersection != None):
+        x,y = intersection.exterior.xy
+        plt.plot(x,y)
 
     color = ['red', 'blue', 'green']
     counter = 0
@@ -37,8 +42,26 @@ def get_intersection(radiusDict, device_positions, chosen_device_names):
         radius = radiusDict[device]
         circles.append(Point(x_coor, y_coor).buffer(radius))
 
-    intersection = cascaded_union(
-        [a.intersection(b)
-         for a, b in combinations(circles, 2)]
-    )
-    print(intersection)
+        counter += 1
+
+    intersection = _findIntersection(circles)
+
+    print(intersection.bounds)
+    if ( intersection.bounds == () ):
+        return None
+
+    return intersection
+
+def _findIntersection(circles):
+    intersection = circles[0].intersection(circles[1]).intersection(circles[2])
+    if (intersection.bounds == ()):
+        intersection = circles[0].intersection(circles[1])
+        if (intersection.bounds == ()):
+            intersection = circles[0].intersection(circles[2])
+            if (intersection.bounds == ()):
+                intersection = circles[1].intersection(circles[2])
+
+
+    return intersection
+
+

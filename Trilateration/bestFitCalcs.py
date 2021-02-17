@@ -2,6 +2,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pylab
 
+import math
+
 
 def getBestFitLine(fileName, device_name, bestFitLineDict):
     with open(fileName) as f:
@@ -33,7 +35,7 @@ def plotData(x_vals, y_vals, data):
     plt.title("Distance Vs RSSI Values")
 
     a, b = np.polyfit(np.log(x_vals), y_vals, 1)
-    print(a, b)
+    # print(a, b)
 
     x = np.arange(0.1, 20, 0.1)
     plt.plot(x, a * np.log(x) + b)
@@ -61,5 +63,26 @@ def getHighest(predictedDistances: list):
     return predictedDistances[len(predictedDistances) - 1]
 
 
-def calculateRadius():
-    pass
+def _getMidpoint(minBound, maxBound):
+    return (minBound + maxBound)/2.0
+
+
+def _getMarginOfError(predictedCoords, actualCoords):
+    dist_squared = (predictedCoords[0] - actualCoords[0])**2 + (predictedCoords[1] - actualCoords[1])**2
+    dist = math.sqrt(dist_squared)
+    return round(dist, 2)
+
+def getIntersectionCenter(intersection, actualCoords):
+    if (intersection == None ):
+        print("No intersection")
+        return
+
+    minX, minY, maxX, maxY = intersection.bounds
+
+    midpointX = _getMidpoint(minX, maxX)
+    midpointY = _getMidpoint(minY, maxY)
+
+    marginOfError = _getMarginOfError((midpointX, midpointY), actualCoords)
+    print(str(marginOfError) + " ft off from center of intersection.")
+
+
