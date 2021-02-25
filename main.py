@@ -90,10 +90,12 @@ if __name__ == "__main__":
     (
         chosen_devices,
         chosen_device_names,
-        device_positions,
+        # device_positions,
         device_spreadsheets,
         actualCoords
     ) = inputs.getAllInputs()
+
+    device_positions = [(0,0), (-3, 19), (9, 13)]
 
     print(chosen_devices, chosen_device_names,
           device_positions, device_spreadsheets)
