@@ -39,9 +39,12 @@ def plotData(x_vals, y_vals, data):
 
     x = np.arange(0.1, 20, 0.1)
     plt.plot(x, a * np.log(x) + b)
-
+    
+    plt.ion()
     plt.show()
-
+    plt.pause(0.001)
+    input("Press enter to continue.")
+    plt.close()
 
 def getDistance(a, rssi, b):
     return np.exp((rssi - b) / a)

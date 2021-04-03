@@ -90,7 +90,7 @@ if __name__ == "__main__":
     (
         chosen_devices,
         chosen_device_names,
-        # device_positions,
+        #device_positions,
         device_spreadsheets,
         actualCoords
     ) = inputs.getAllInputs()

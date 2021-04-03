@@ -31,8 +31,9 @@ def visualize_circles(radiusDict, device_positions, chosen_device_names, actualC
         axes.add_artist(plt.Circle(device_positions[counter], 0.5, color=color[counter]))
 
         counter += 1
-
+    #plt.ion()
     plt.show()
+    #plt.pause(0.001)
 
 
 def get_intersection(radiusDict, device_positions, chosen_device_names):
@@ -58,10 +59,10 @@ def _findIntersection(circles):
     if (len(circles) == 1):
         intersection = circles[0]
         
-    else if (len(circles) == 2):
+    elif (len(circles) == 2):
         intersection = circles[0].intersection(circles[1])
     
-    else if (len(circles) == 3):
+    elif (len(circles) == 3):
         intersection = circles[0].intersection(circles[1]).intersection(circles[2])
         if (intersection.bounds == ()):
             intersection = circles[0].intersection(circles[1])

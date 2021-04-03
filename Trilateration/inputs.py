@@ -82,14 +82,14 @@ def getAllInputs():
         allDeviceAddresses, allDeviceNames
     )
 
-    # device_positions = inputPositions(chosen_device_names)
+    #device_positions = inputPositions(chosen_device_names)
     device_spreadsheets = inputSpreadsheets(chosen_device_names)
     actualCoords = inputActualCoords()
 
     return (
         chosen_devices,
         chosen_device_names,
-        # device_positions,
+        #device_positions,
         device_spreadsheets,
         actualCoords
     )
