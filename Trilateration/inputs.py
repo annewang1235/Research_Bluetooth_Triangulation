@@ -48,7 +48,7 @@ def inputPositions(chosen_device_names):
 
 
 def inputSpreadsheets(chosen_device_names):
-    choices = glob.glob("*/bluetooth_data*.csv")
+    choices = glob.glob("*/*.{}".format('csv')) #this accts for all csv files, in case we switch between Arduinos and RPis
     spreadsheets = []
     index = 0
     for ele in choices:

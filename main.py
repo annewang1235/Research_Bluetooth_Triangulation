@@ -43,14 +43,6 @@ def getRadiusOfBeacons(chosen_devices, chosen_device_names, bestFitLineDict):
     with open(fileName, "a", newline="") as csvfile:
         writer = csv.writer(csvfile)
 
-        #degrees, testing_values = inputs.askForDistances()
-
-        #for counter in range(len(chosen_devices)):
-        #    print("Now testing: " + chosen_device_names[counter])
-        #for k in range(1):
-            #actual_distance = input(
-            #    "What distance are you at right now (for " + chosen_device_names[counter] + "): ")
-
         distanceDict = collectDataSamples(
             bestFitLineDict, chosen_device_names, chosen_devices
         )
@@ -95,7 +87,7 @@ if __name__ == "__main__":
         actualCoords
     ) = inputs.getAllInputs()
 
-    device_positions = [(0,0), (-3, 19), (9, 13)]
+    device_positions = [(0,0), (-3, 19), (8, 11)]
 
     print(chosen_devices, chosen_device_names,
           device_positions, device_spreadsheets)
@@ -117,7 +109,9 @@ if __name__ == "__main__":
     intersection = draw_circle.get_intersection(
         radiusDict, device_positions, chosen_device_names)
 
-    bestFitCalcs.getIntersectionCenter(intersection, actualCoords)
+    marginOfErrorDistance = bestFitCalcs.getIntersectionCenter(intersection, actualCoords)
+
+    output.writeDataToOutFile(chosen_device_names, device_positions, radiusDict, actualCoords, marginOfErrorDistance)
 
     draw_circle.visualize_circles(
         radiusDict, device_positions, chosen_device_names, actualCoords, intersection)

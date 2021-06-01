@@ -85,4 +85,6 @@ def getIntersectionCenter(intersection, actualCoords):
     marginOfError = _getMarginOfError((midpointX, midpointY), actualCoords)
     print(str(marginOfError) + " ft off from center of intersection.")
 
+    return marginOfError
+
 

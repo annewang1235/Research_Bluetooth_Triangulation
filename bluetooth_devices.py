@@ -27,7 +27,7 @@ def getDeviceID():
     return (device_arr[int(chosen)], device_name_arr[int(chosen)])
 
 
-def getRSSISamples(num_samples, device_id):
+def getRSSISamples(num_samples, device_id): #accounts for calibrating data for multiple beacons at once
     iter_num = 0
     samples_dict = {}
     raw_samples_dict = {}
@@ -48,9 +48,13 @@ def getRSSISamples(num_samples, device_id):
         for device in data:
           if device["address"] in device_id:
             if device["connected"]:
-                samples_dict[device["address"]].append(device["RSSI"])
-                raw_samples_dict[device["address"]].append(device["rawRSSI"])
-                print(device["name"], "Iteration Count:", iter_num + 1)
+                if (device["rawRSSI"] < 0):
+                    samples_dict[device["address"]].append(device["RSSI"])
+                    raw_samples_dict[device["address"]].append(device["rawRSSI"])
+                    print(device["name"], "Iteration Count:", iter_num + 1)
+                else: 
+                    print(device["name"], "Weird RSSI reading:", device["rawRSSI"])
+                    iter_num -= 1
             else:
                 print("disconnected. trying to reconnect.")
                 for id in device_id:
@@ -106,10 +110,12 @@ def printData(distance, rangeOfRSSI, mean, median, mode):
 
 if __name__ == "__main__":
     device_id, device_name = getDeviceID()
-    startVal = 1
+    startVal = 3
     endVal = 20
 
-    fileName = "bluetooth_data_" + device_name + ".csv"
+    fileName = "rpi_" + device_name + ".csv"
+    device_id = [device_id]
+    print(device_id)
 
     # each device has its own specific spreadsheet, name of spreadsheet to include name of device
     with open(fileName, "a", newline="") as csvfile:
@@ -122,15 +128,17 @@ if __name__ == "__main__":
 
         for i in range(startVal, endVal + 1):
             distance = input(f'{i} feet away from Beacon\npress enter to continue...')
+            
             samples = getRSSISamples(100, device_id)
+            print(samples[1][device_id[0]])
 
             # raw RSSI ranges
-            raw_range = getRange(samples[1])
+            raw_range = getRange(samples[1][device_id[0]])
 
             # raw RSSI mean, median, mode
-            raw_mean = getMean(samples[1])
-            raw_median = getMedian(samples[1])
-            raw_mode = getMode(samples[1])
+            raw_mean = getMean(samples[1][device_id[0]])
+            raw_median = getMedian(samples[1][device_id[0]])
+            raw_mode = getMode(samples[1][device_id[0]])
             printData(i, raw_range, raw_mean, raw_median, raw_mode)
 
             writer.writerow([i, raw_median, raw_range, raw_mean])

@@ -43,3 +43,19 @@ def writeTitles():
                 "Range of Predicted Distances",
             ]
         )
+
+def writeDataToOutFile(chosen_device_names, device_positions, radiusDict, actualCoords, marginOfErrorDistance):
+    fileName = "intersection_data.csv"
+    with open(fileName, "a", newline="") as csvfile:
+        writer = csv.writer(csvfile)
+
+        writer.writerow(
+        [
+            chosen_device_names,
+            device_positions,
+            radiusDict.items(),
+            actualCoords,
+            str(marginOfErrorDistance) + " ft off center"
+        ]
+    )
+

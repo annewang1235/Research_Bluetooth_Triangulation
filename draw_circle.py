@@ -58,10 +58,10 @@ def _findIntersection(circles):
     if (len(circles) == 1):
         intersection = circles[0]
         
-    else if (len(circles) == 2):
+    elif (len(circles) == 2):
         intersection = circles[0].intersection(circles[1])
     
-    else if (len(circles) == 3):
+    elif (len(circles) == 3):
         intersection = circles[0].intersection(circles[1]).intersection(circles[2])
         if (intersection.bounds == ()):
             intersection = circles[0].intersection(circles[1])
