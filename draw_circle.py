@@ -6,6 +6,7 @@ from shapely.ops import cascaded_union
 from itertools import combinations
 
 def visualize_circles(radiusDict, device_positions, chosen_device_names, actualCoords, intersection):
+    plt.clf()
     figure, axes = plt.subplots()
 
     axes.add_artist(plt.Circle(actualCoords, 0.5, color='black'))
@@ -31,9 +32,10 @@ def visualize_circles(radiusDict, device_positions, chosen_device_names, actualC
         axes.add_artist(plt.Circle(device_positions[counter], 0.5, color=color[counter]))
 
         counter += 1
-    #plt.ion()
+    plt.ion()
     plt.show()
-    #plt.pause(0.001)
+    plt.pause(0.001)
+    input("Press enter to continue...")
 
 
 def get_intersection(radiusDict, device_positions, chosen_device_names):

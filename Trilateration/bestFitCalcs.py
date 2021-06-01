@@ -27,6 +27,7 @@ def getBestFitLine(fileName, device_name, bestFitLineDict):
 
 
 def plotData(x_vals, y_vals, data):
+    plt.clf()
     for (x, y) in data:
         plt.scatter(float(x), float(y))
 
@@ -43,8 +44,8 @@ def plotData(x_vals, y_vals, data):
     plt.ion()
     plt.show()
     plt.pause(0.001)
-    input("Press enter to continue.")
-    plt.close()
+    input("Press enter to continue...")
+    #plt.close()
 
 def getDistance(a, rssi, b):
     return np.exp((rssi - b) / a)

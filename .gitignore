@@ -4,3 +4,4 @@ bluetooth_data_BT*
 __pycache__/
 .vscode/
 .DS_Store
+activeTrack.py
