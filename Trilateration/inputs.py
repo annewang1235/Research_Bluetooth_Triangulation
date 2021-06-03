@@ -2,7 +2,11 @@
 import subprocess
 import json
 import glob
+import asyncio
 
+from bleak import BleakClient, BleakScanner
+from bleak.backends.corebluetooth.client import BleakClientCoreBluetooth
+from bleak.backends.device import BLEDevice
 
 def printsAllDevices():
     output = subprocess.check_output(
@@ -22,6 +26,25 @@ def printsAllDevices():
         index += 1
 
     return (device_arr, device_name_arr)
+
+async def printsAllBLEDevices():
+  scanner = BleakScanner()
+  await scanner.start()
+  await asyncio.sleep(10.0)
+  await scanner.stop()
+  devices = await scanner.get_discovered_devices()
+  device_arr = []
+  index = 0
+
+  device_name_arr = []
+  
+  for d in devices:
+    print(index, d.name)
+    device_name_arr.append(str(d.name))
+    device_arr.append(str(d.address))
+    index += 1
+
+  return (device_arr, device_name_arr)
 
 
 def inputChosenDevices(device_arr, device_name_arr):
@@ -77,6 +100,25 @@ def askForDistances():
 
 def getAllInputs():
     allDeviceAddresses, allDeviceNames = printsAllDevices()
+
+    chosen_devices, chosen_device_names = inputChosenDevices(
+        allDeviceAddresses, allDeviceNames
+    )
+
+    # device_positions = inputPositions(chosen_device_names)
+    device_spreadsheets = inputSpreadsheets(chosen_device_names)
+    actualCoords = inputActualCoords()
+
+    return (
+        chosen_devices,
+        chosen_device_names,
+        # device_positions,
+        device_spreadsheets,
+        actualCoords
+    )
+
+async def getBLEInputs():
+    allDeviceAddresses, allDeviceNames = await printsAllBLEDevices()
 
     chosen_devices, chosen_device_names = inputChosenDevices(
         allDeviceAddresses, allDeviceNames
