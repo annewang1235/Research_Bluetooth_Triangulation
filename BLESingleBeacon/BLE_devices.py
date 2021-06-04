@@ -28,9 +28,8 @@ async def getDeviceID():
   return (devices[int(chosen)].address, devices[int(chosen)].name)
 
 # device_map maps the addresses to names
-async def getRSSISamples(num_samples, device_id, device_map):
-    device = BleakClientCoreBluetooth(device_id, timeout=20.0)
-    await device.connect()
+async def getRSSISamples(num_samples, device_id, device_map, device):
+    
     iter_num = 0
     raw_arr = []
     
@@ -85,6 +84,8 @@ def printData(distance, rangeOfRSSI, mean, median, mode):
 
 async def run():
   device_id, device_name = await getDeviceID()
+  device = BleakClientCoreBluetooth(device_id, timeout=20.0)
+  await device.connect()
   device_dict = dict()
   device_dict[device_id] = device_name
   startVal = 1
@@ -103,7 +104,7 @@ async def run():
 
     for i in range(startVal, endVal + 1):
       distance = input(f'{i} feet away from Beacon\npress enter to continue...')
-      samples = await getRSSISamples(100, device_id, device_dict)
+      samples = await getRSSISamples(100, device_id, device_dict, device)
 
       # raw RSSI ranges
       raw_range = getRange(samples)
